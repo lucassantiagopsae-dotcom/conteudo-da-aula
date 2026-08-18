@@ -1,0 +1,8 @@
+
+# Reference site (third-party scraped assets — not ours to distribute)
+/reference_site/
+/39368fba-23c5-43a0-9555-aad291bcbbaa
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
