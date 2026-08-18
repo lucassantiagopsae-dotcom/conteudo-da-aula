@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulação — Larvia Consórcios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+
+<!-- GA4 (first-party via /scripts/gtag.js, proxies googletagmanager.com) -->
+<script async src="/scripts/gtag.js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX'); // ← seu GA4 Measurement ID
+</script>
+
+<!-- Meta Pixel -->
+<script>
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+  document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', 'YOUR_META_PIXEL_ID'); // ← seu Pixel ID numérico
+
+  // PageView — dual fire (pixel + CAPI via /tracker), deduped por event_id.
+  (function () {
+    var pvEventId = (crypto.randomUUID && crypto.randomUUID()) ||
+      (Date.now() + '-' + Math.random().toString(36).slice(2));
+    fbq('track', 'PageView', {}, { eventID: pvEventId });
+    fetch('/tracker', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      keepalive: true,
+      body: JSON.stringify({
+        event_name: 'PageView',
+        event_id: pvEventId,
+        event_time: Math.floor(Date.now() / 1000),
+        event_source_url: window.location.href,
+        user_data: {},
+      }),
+    }).catch(function () {});
+  })();
+</script>
+</head>
+<body>
+
+<div class="sim-page">
+  <div class="form-topbar">
+    <a href="../index.html" class="form-close" aria-label="Voltar para a página inicial">&times;</a>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <span class="progress-label" id="progressLabel">Início</span>
+  </div>
+  <div class="form-stage" id="formStage">
+    <!-- steps injected by script.js -->
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

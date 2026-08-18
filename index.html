@@ -8,6 +8,44 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+
+<!-- GA4 (first-party via /scripts/gtag.js, proxies googletagmanager.com) -->
+<script async src="/scripts/gtag.js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX'); // ← seu GA4 Measurement ID
+</script>
+
+<!-- Meta Pixel -->
+<script>
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+  document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', 'YOUR_META_PIXEL_ID'); // ← seu Pixel ID numérico
+
+  // PageView — dual fire (pixel + CAPI via /tracker), deduped por event_id.
+  (function () {
+    var pvEventId = (crypto.randomUUID && crypto.randomUUID()) ||
+      (Date.now() + '-' + Math.random().toString(36).slice(2));
+    fbq('track', 'PageView', {}, { eventID: pvEventId });
+    fetch('/tracker', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      keepalive: true,
+      body: JSON.stringify({
+        event_name: 'PageView',
+        event_id: pvEventId,
+        event_time: Math.floor(Date.now() / 1000),
+        event_source_url: window.location.href,
+        user_data: {},
+      }),
+    }).catch(function () {});
+  })();
+</script>
 </head>
 <body>
 
@@ -22,7 +60,7 @@
       <a href="#faq">Dúvidas</a>
     </nav>
     <div class="header-cta">
-      <a class="btn btn-primary" href="simulacao.html">Simular meu consórcio</a>
+      <a class="btn btn-primary" href="/simulacao/">Simular meu consórcio</a>
     </div>
   </div>
 </header>
@@ -36,7 +74,7 @@
       <p class="subhead">Com o consórcio imobiliário, você pode planejar a compra da sua casa, apartamento ou imóvel para investimento de acordo com seus objetivos e capacidade financeira.</p>
       <p class="subhead">Faça uma simulação rápida e descubra quais opções podem fazer sentido para você.</p>
       <div class="cta-row">
-        <a class="btn btn-primary" href="simulacao.html">Simular meu consórcio</a>
+        <a class="btn btn-primary" href="/simulacao/">Simular meu consórcio</a>
         <p class="micro-copy">Leva menos de 2 minutos para responder.</p>
       </div>
     </div>
@@ -63,7 +101,7 @@
       <p>Você escolhe o valor de crédito que procura e encontra uma condição compatível com o seu planejamento.</p>
     </div>
     <div class="section-cta">
-      <a class="btn btn-outline" href="simulacao.html">Quero conhecer minhas opções</a>
+      <a class="btn btn-outline" href="/simulacao/">Quero conhecer minhas opções</a>
     </div>
   </div>
 </section>
@@ -92,7 +130,7 @@
       </div>
     </div>
     <div class="section-cta">
-      <a class="btn btn-primary" href="simulacao.html">Fazer minha simulação</a>
+      <a class="btn btn-primary" href="/simulacao/">Fazer minha simulação</a>
     </div>
   </div>
 </section>
@@ -127,7 +165,7 @@
       </div>
     </div>
     <div class="section-cta">
-      <a class="btn btn-outline" href="simulacao.html">Descobrir qual opção combina comigo</a>
+      <a class="btn btn-outline" href="/simulacao/">Descobrir qual opção combina comigo</a>
     </div>
   </div>
 </section>
@@ -153,7 +191,7 @@
     </div>
     <p class="section-sub" style="max-width:60ch;margin-top:24px;">O melhor caminho depende do seu momento, da sua urgência e da sua capacidade financeira.</p>
     <div class="section-cta">
-      <a class="btn btn-primary" href="simulacao.html">Quero entender se consórcio faz sentido para mim</a>
+      <a class="btn btn-primary" href="/simulacao/">Quero entender se consórcio faz sentido para mim</a>
     </div>
   </div>
 </section>
@@ -195,7 +233,7 @@
     <div class="sim-band">
       <h2>Quanto você precisa para conquistar seu próximo imóvel?</h2>
       <p>Faça uma simulação e descubra quais possibilidades podem fazer sentido para o seu momento. Você responde algumas perguntas rápidas e nossa equipe entra em contato para apresentar as alternativas disponíveis.</p>
-      <a class="btn btn-primary" href="simulacao.html">Começar minha simulação</a>
+      <a class="btn btn-primary" href="/simulacao/">Começar minha simulação</a>
       <p class="micro-copy">Sem compromisso. Leva menos de 2 minutos.</p>
     </div>
   </div>
@@ -243,7 +281,7 @@
       <h2>Sua casa pode começar com uma decisão de planejamento.</h2>
       <p class="section-sub">Descubra quais opções de consórcio podem se encaixar nos seus planos e no seu orçamento. Faça uma simulação gratuita e converse com um especialista.</p>
     </div>
-    <a class="btn btn-primary" href="simulacao.html">Simular meu consórcio</a>
+    <a class="btn btn-primary" href="/simulacao/">Simular meu consórcio</a>
     <p class="micro-copy">Leva menos de 2 minutos.</p>
   </div>
 </section>
@@ -265,8 +303,8 @@
       </div>
       <div class="footer-col">
         <h4>Simulação</h4>
-        <a href="simulacao.html">Simular meu consórcio</a>
-        <a href="simulacao.html">Falar com um especialista</a>
+        <a href="/simulacao/">Simular meu consórcio</a>
+        <a href="/simulacao/">Falar com um especialista</a>
       </div>
       <div class="footer-col">
         <h4>Larvia Consórcios</h4>

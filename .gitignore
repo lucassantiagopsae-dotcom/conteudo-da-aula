@@ -3,6 +3,16 @@
 /reference_site/
 /39368fba-23c5-43a0-9555-aad291bcbbaa
 
+# Cloudflare / wrangler secrets — never commit these
+wrangler.toml
+.dev.vars
+.env
+.env.*
+
+# Credential files that should never be versioned
+tokens*e*ID*.txt
+add-cloudflare-account*.md
+
 # OS / editor junk
 .DS_Store
 Thumbs.db

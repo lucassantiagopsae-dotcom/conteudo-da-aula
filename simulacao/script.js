@@ -45,6 +45,38 @@ const QUESTION_STEP_IDS = STEPS.filter(s => !['intro', 'success'].includes(s.typ
 
 const state = { index: 0, answers: {} };
 
+// Dispara um evento pro Meta Pixel (browser) + /tracker (server, CAPI + GA4),
+// deduplicados pelo mesmo event_id. `standardEvent` usa fbq('track', ...)
+// para eventos padrão do Meta (ex: 'Lead'); eventos customizados (ex:
+// 'SimulationStart') usam fbq('trackCustom', ...).
+function fireEvent(eventName, userData, standardEvent) {
+  const eventId = (crypto.randomUUID && crypto.randomUUID()) ||
+    (Date.now() + '-' + Math.random().toString(36).slice(2));
+  const eventTime = Math.floor(Date.now() / 1000);
+
+  try {
+    if (window.fbq) {
+      if (standardEvent) {
+        fbq('track', eventName, {}, { eventID: eventId });
+      } else {
+        fbq('trackCustom', eventName, {}, { eventID: eventId });
+      }
+    }
+  } catch (_) {}
+
+  fetch('/tracker', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      event_name: eventName,
+      event_id: eventId,
+      event_time: eventTime,
+      event_source_url: window.location.href,
+      user_data: userData || {},
+    }),
+  }).catch(function () {});
+}
+
 const stage = document.getElementById('formStage');
 const progressFill = document.getElementById('progressFill');
 const progressLabel = document.getElementById('progressLabel');
@@ -89,7 +121,10 @@ function render() {
       <button class="btn btn-primary" id="introBtn">${step.button}</button>
     `;
     stage.appendChild(wrap);
-    wrap.querySelector('#introBtn').addEventListener('click', next);
+    wrap.querySelector('#introBtn').addEventListener('click', () => {
+      fireEvent('SimulationStart', {});
+      next();
+    });
     return;
   }
 
@@ -149,6 +184,16 @@ function render() {
         return;
       }
       state.answers[step.id] = val;
+
+      if (step.id === 'telefone') {
+        const nameParts = (state.answers.nome || '').trim().split(/\s+/);
+        fireEvent('Lead', {
+          fn: nameParts[0] || '',
+          ln: nameParts.slice(1).join(' ') || '',
+          ph: val,
+        }, /* standardEvent */ true);
+      }
+
       next();
     };
 
