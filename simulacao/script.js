@@ -43,6 +43,23 @@ const STEPS = [
 // Passos que contam para a barra de progresso (exclui intro/success)
 const QUESTION_STEP_IDS = STEPS.filter(s => !['intro', 'success'].includes(s.type)).map(s => s.id);
 
+// ------------------------------------------------------------
+// Critério de lead qualificado (MQL), definido pelo comercial:
+// precisa ser primeira casa E valor do imóvel acima de R$ 200 mil.
+// Os textos abaixo têm que bater exatamente com as `options` dos
+// steps 'objetivo' e 'valor_imovel' — se a copy mudar lá, muda aqui.
+// ------------------------------------------------------------
+const MQL_OBJETIVO = 'Comprar minha primeira casa';
+const MQL_VALORES_ACIMA_DE_200K = [
+  'De R$ 200 mil a R$ 500 mil',
+  'De R$ 500 mil a R$ 1 milhão',
+];
+
+function isQualifiedLead(answers) {
+  return answers.objetivo === MQL_OBJETIVO
+    && MQL_VALORES_ACIMA_DE_200K.includes(answers.valor_imovel);
+}
+
 const state = { index: 0, answers: {} };
 
 // Dispara um evento pro Meta Pixel (browser) + /tracker (server, CAPI + GA4),
@@ -187,11 +204,20 @@ function render() {
 
       if (step.id === 'telefone') {
         const nameParts = (state.answers.nome || '').trim().split(/\s+/);
-        fireEvent('Lead', {
+        const userData = {
           fn: nameParts[0] || '',
           ln: nameParts.slice(1).join(' ') || '',
           ph: val,
-        }, /* standardEvent */ true);
+        };
+
+        fireEvent('Lead', userData, /* standardEvent */ true);
+
+        // Lead que bate o critério comercial também dispara o MQL, com a
+        // mesma PII — assim o Meta consegue otimizar para o lead bom, não
+        // só para volume de formulário preenchido.
+        if (isQualifiedLead(state.answers)) {
+          fireEvent('QualifiedLead', userData, /* standardEvent */ false);
+        }
       }
 
       next();
